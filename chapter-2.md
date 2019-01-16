@@ -41,20 +41,20 @@
 传统进程：又称为“重型进程” Heavy-Weight Process
 
 - 调度
-	- 传统OS中，拥有资源的基本单位和独立调度、分派的基本单位是进程；引入线程的OS中，把线程作为调度、分派的基本单位，而把进程作为资源拥有的基本单位。（即两个属性分开了）
-	- 在同一进程中，线程的切换不会引起进程的切换；在由一个进程中的线程切换到另一个进程中的线程时会引起进程的切换。
+    - 传统OS中，拥有资源的基本单位和独立调度、分派的基本单位是进程；引入线程的OS中，把线程作为调度、分派的基本单位，而把进程作为资源拥有的基本单位。（即两个属性分开了）
+    - 在同一进程中，线程的切换不会引起进程的切换；在由一个进程中的线程切换到另一个进程中的线程时会引起进程的切换。
 - 并发性
-	- 引入线程的OS中，不仅进程之间可以并发执行，而且在一个进程中的多个线程之间也可以并发执行，因此更具有并发性，更有效地使用系统资源和提高系统吞吐量。（多线程的文件服务器）
+    - 引入线程的OS中，不仅进程之间可以并发执行，而且在一个进程中的多个线程之间也可以并发执行，因此更具有并发性，更有效地使用系统资源和提高系统吞吐量。（多线程的文件服务器）
 - 拥有资源
-	- 线程自己不拥有系统资源，但它可以访问其隶属进程的资源，即一个进程的代码段、数据段以及系统资源(已打开的文件、I/O设备)
+    - 线程自己不拥有系统资源，但它可以访问其隶属进程的资源，即一个进程的代码段、数据段以及系统资源(已打开的文件、I/O设备)
 - 系统开销
-	- 进程的开销明显大于线程的开销，无论是创建、撤销、转换。
+    - 进程的开销明显大于线程的开销，无论是创建、撤销、转换。
 - 从地址空间资源上比较
-	- 不同的进程的地址空间是相互独立的，而同一进程的各线程共享同一地址空间，一个进程中的线程在另一个进程中是不可见的
+    - 不同的进程的地址空间是相互独立的，而同一进程的各线程共享同一地址空间，一个进程中的线程在另一个进程中是不可见的
 - 从通信关系上比较
-	- 进程间通信必须使用操作系统提供的进程间通信机制，而同一进程的各线程可通过直接读写进程数据段来进程通信，当然同一进程的各线程间通信也需要同步和互斥手段的辅助，以保证数据一致性
+    - 进程间通信必须使用操作系统提供的进程间通信机制，而同一进程的各线程可通过直接读写进程数据段来进程通信，当然同一进程的各线程间通信也需要同步和互斥手段的辅助，以保证数据一致性
 - 从调度切换上比较
-	- 同一进程中的线程上下文切换比进程的上下文切换要快得多
+    - 同一进程中的线程上下文切换比进程的上下文切换要快得多
 
 ## 线程的实现方式
 
@@ -71,8 +71,8 @@
     - 两种线程的调度与切换相似，线程的调度方式也都有两种方式：抢占方式和非抢占方式
     - 用户级线程的切换不需要通过中断进入OS的内核，因此切换的规则比进程的调度、切换规则简单得多
 5. 线程执行时间
-	- 用户级线程的系统，调度是以进程为单位；
-	- 内核支持线程的系统，调度是以线程为单位的。
+    - 用户级线程的系统，调度是以进程为单位；
+    - 内核支持线程的系统，调度是以线程为单位的。
 6. 系统调用
     - 传统的用户进程调用一个系统调用时，要由用户态转入核心态，用户进程将被阻塞，当内核完成系统调用而返回时，才将该进程唤醒，继续执行
     - 而用户级线程调用一个系统调用时，由于内核并不知道有该用户级线程的存在，因此把系统调用看作是整个进程的行为，于是使该进程等待，而调度另一个进程执行，同样是在内核完成系统调用返回时，进程才继续执行
@@ -101,29 +101,29 @@
 ## 	引入线程时 原来进程模型的函数会不会有问题 比如全局数据 特权指令 怎么解决
 
 - 全局变量
-	- way1:映射为线程私有变量
-	- way2:引入新的库过程
-		```c++
-		create_global("bufptr");
-		set_global("bufptr", &buf);
-		bufptr = read_global("bufptr");
-		```
+    - way1:映射为线程私有变量
+    - way2:引入新的库过程
+        ```c++
+        create_global("bufptr");
+        set_global("bufptr", &buf);
+        bufptr = read_global("bufptr");
+        ```
 - 不可重入库函数的问题
-	- such as malloc, stdio functions
-	- way1:重写库过程
-	- way2:为每个过程提供包装器，同一个过程一个时间只允许一个线程执行
+    - such as malloc, stdio functions
+    - way1:重写库过程
+    - way2:为每个过程提供包装器，同一个过程一个时间只允许一个线程执行
 - 信号接收处理问题
-	- 线程专用信号、进程信号
+    - 线程专用信号、进程信号
 - 多线程的堆栈管理问题
-	- 传统进程中堆可自动增长，而多线程环境下要三思
-	- 重写库的同时，还要考虑兼容原有程序的问题
+    - 传统进程中堆可自动增长，而多线程环境下要三思
+    - 重写库的同时，还要考虑兼容原有程序的问题
 
 ## 进程间可能存在的关系
 - 资源共享关系
-	- 进程之间彼此无关，相互也不知道对方的存在，但使用了相同了资源
+    - 进程之间彼此无关，相互也不知道对方的存在，但使用了相同了资源
 - 相互合作关系
-	- 进程之间存在逻辑业务上的相互合作关系
-	- 例如：输入进程、计算进程和打印进程三者配合完成某项业务。
+    - 进程之间存在逻辑业务上的相互合作关系
+    - 例如：输入进程、计算进程和打印进程三者配合完成某项业务。
 
 ## 进程间通信概念
 **竞争条件**：当类似两个或多个进程读写某些共享数据，而最后的结果取决于进程运行的精确时序的，称为竞争条件
@@ -168,15 +168,15 @@ int turn; /*whose turn is it?*/
 int interested[N]; /*all values initially 0*/
 void enter_region(int process)
 {
-	int other;
-	other=1-process;
-	interested[process]=TRUE;
-	turn=process;
-	while(turn==process && interested[other]==TRUE);
+    int other;
+    other=1-process;
+    interested[process]=TRUE;
+    turn=process;
+    while(turn==process && interested[other]==TRUE);
 }
 void leave_region(int process)
 {
-	interested[process]=FALSE;
+    interested[process]=FALSE;
 }
 ```
 
@@ -196,7 +196,9 @@ void leave_region(int process)
 - 需要增加唤醒等待位
 
 ## 信号量（semaphore）
-DOWN(),UP()
+
+- `DOWN()`
+- `UP()`
 
 ## 互斥量（mutex）
 
@@ -235,8 +237,8 @@ DOWN(),UP()
 
 在相互通信的进程之间设有一个公共内存区，一组进程向该公共内存中写，另一组进程从从公共内存中读，通过这种方式实现两组进程间的信息交换
 - 需解决的两个问题
-	- 怎样提供共享内存
-	- 公共内存中的读写互斥问题
+    - 怎样提供共享内存
+    - 公共内存中的读写互斥问题
 
 ### 消息传递系统
 
@@ -257,3 +259,164 @@ DOWN(),UP()
     - 互斥:当一个进程正在对管道读/写时，另一进程必须等待；
     - 同步:当写进程把一定数量数据写入pipe后，便睡眠，直到读进程取走数据后再把它唤醒；当读进程读一空pipe时，也应睡眠，直到写进程将数据写入管道后，才将它唤醒
     - 对方是否存在:只有确定对方已存在时，方能进行通信
+
+## 哲学家就餐问题
+
+```c
+#define N 5
+#define LEFT (i+N-1)%N
+#define RIGHT (i+1)%N
+#define THINKING 0
+#define HUNGRY 1
+#define EATING 2
+typedef int semaphore;
+int state[N];
+semaphore mutex=1;
+semaphore s[N];
+void philosopher(int){
+    while(TRUE){
+        think();
+        take_forks(i);
+        eat();
+        put_forks(i);
+    }
+}
+void take_forks(int i){
+    down(&mutex);
+    state[i]=HUNGRY; test(i);
+    up(&mutex);
+    down(&s[i]);
+}
+void put_forks(int i){
+    down(&mutex);
+    state[i]=THINKING;
+    test(LEFT); test(RIGHT);
+    up(&mutex);
+}
+void test(int i){
+    if(state[i]==HUNGRY && state[LEFT]!=EATING
+    && state[RIGHT]!=EATING){
+        state[i]=EATING;
+        up(&s[i]);
+    }
+}
+```
+
+## 读者写者问题
+
+### 读者优先
+
+```c
+int count = 0;          // 用于记录当前的读者数量
+semaphore mutex = 1;    // 用于保护更新count变量时的互斥
+semaphore rw = 1;       // 用于保证读者和写者互斥地访问文件
+// 写者进程
+void writer () {
+    while(1){
+        down(&rw);      // 互斥访问共享文件
+        writing();      // 写入
+        up(&rw);        // 释放共享文件
+    }
+}
+// 读者进程
+void reader () {
+    while(1){
+        down(&mutex);   // 互斥访问count变量
+        if (count == 0) // 当第一个读进程读共享文件时
+            down(&rw);  // 阻止写进程写
+        count++;        // 读者计数器加1
+        up(&mutex);     // 释放互斥变量count
+        reading();      // 读取
+        down(&mutex);   // 互斥访问count变量
+        count--;        // 读者计数器减1
+        if (count == 0) // 当最后一个读进程读完共享文件
+            up(&rw);    // 允许写进程写
+        up(&mutex);     // 释放互斥变量 count
+    }
+}
+```
+
+### 写者优先
+
+```c
+typedef int semaphore
+int wcount = 0;
+int rcount = 0;
+semaphore wsem = 1;
+semaphore rsem = 1;
+semaphore x = 1;
+semaphore y = 1;
+semaphore z = 1;
+// 写者进程
+void writer () {
+    while(1){
+        down(&y);
+        wcount++;
+        if (wcount == 1)
+            down(&rsem);
+        up(&y);
+        down(&wsem);
+        writing();
+        up(&wsem);
+        down(&y);
+        wcount--;
+        if (wcount == 0)
+            up(&rsem);
+        up(&y);
+    }
+}
+// 读者进程
+void reader () {
+    while (1){
+        down(&z);
+        down(&rsem);
+        down(&x);
+        rcount++;
+        if (rcount == 1)
+            down(&wsem);
+        up(&x);
+        up(&rsem);
+        up(&z);
+        reading();
+        down(&x);
+        rcount--;
+        if (rcount == 0)
+            up(&wsem);
+        up(&x);
+    }
+}
+```
+
+## 睡眠的理发师
+
+```c
+// #define CHAIRS 5
+typedef int semaphore;
+semaphore customers = 0;
+semaphore barbers = 0;
+semaphore mutex = 1;
+int waiting = 0;
+void barber (void) {
+    while (1) {
+        down(&customers);
+        down(&mutex);
+        waiting = waiting - 1;
+        up(&barbers);
+        up(&mutex);
+        cut_hair();
+    }
+}
+void customer (void) {
+    down(&mutex);
+    if (waiting < CHAIRS) {
+        waiting = waiting + 1;
+        up(&customers);
+        up(&mutex);
+        down(&barbers);
+        get_haircut();
+    }
+    else {
+        up(&mutex);
+    }
+}
+```
